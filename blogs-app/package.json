@@ -9,6 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.13",
+    "@tiptap/extension-link": "^2.3.2",
+    "@tiptap/extension-placeholder": "^2.3.2",
+    "@tiptap/extension-underline": "^2.3.2",
+    "@tiptap/pm": "^2.3.2",
+    "@tiptap/react": "^2.3.2",
+    "@tiptap/starter-kit": "^2.3.2",
+    "classnames": "^2.5.1",
     "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18",
