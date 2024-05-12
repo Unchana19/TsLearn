@@ -5,6 +5,8 @@ import ToolBar from "./ToolBar";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
+import EditLink from "./Link/EditLink";
+import Youtube from "@tiptap/extension-youtube";
 
 interface Props {}
 
@@ -24,6 +26,13 @@ const Editor: FC<Props> = (): JSX.Element => {
       }),
       Placeholder.configure({
         placeholder: "Type something...",
+      }),
+      Youtube.configure({
+        width: 840,
+        height: 472.5,
+        HTMLAttributes: {
+          class: "mx-auto rounded",
+        },
       }),
     ],
     editorProps: {
@@ -52,6 +61,7 @@ const Editor: FC<Props> = (): JSX.Element => {
     <div className="p-3 dark:bg-primary-dark bg-primary transition">
       <ToolBar editor={editor} />
       <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3"></div>
+      {editor ? <EditLink editor={editor} /> : null}
       <EditorContent editor={editor} />
     </div>
   );

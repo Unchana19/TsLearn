@@ -14,11 +14,11 @@ import {
   BsTypeItalic,
   BsTypeStrikethrough,
   BsTypeUnderline,
-  BsYoutube,
 } from "react-icons/bs";
 import { RiDoubleQuotesL } from "react-icons/ri";
 import InserLink from "../Link/InserLink";
 import { linkOption } from "../Link/LinkForm";
+import EmbedYoutube from "./EmbedYoutube";
 
 interface Props {
   editor: Editor | null;
@@ -74,6 +74,10 @@ const ToolBar: FC<Props> = ({ editor }): JSX.Element | null => {
     const { commands } = editor;
     if (openInNewTab) commands.setLink({ href: url, target: "_blank" });
     else commands.setLink({ href: url });
+  };
+
+  const handleEmbedYoutube = (url: string) => {
+    editor.chain().focus().setYoutubeVideo({ src: url }).run();
   };
 
   return (
@@ -148,9 +152,7 @@ const ToolBar: FC<Props> = ({ editor }): JSX.Element | null => {
 
       <div className="h-4 w-[1px] bg-secondary-dark dark:bg-secondary-light mx-8" />
       <div className="flex item-center space-x-3">
-        <Button>
-          <BsYoutube />
-        </Button>
+        <EmbedYoutube onSubmit={handleEmbedYoutube} />
         <Button>
           <BsImageFill />
         </Button>
