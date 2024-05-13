@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.13",
+    "@tiptap/extension-image": "^2.3.2",
     "@tiptap/extension-link": "^2.3.2",
     "@tiptap/extension-placeholder": "^2.3.2",
     "@tiptap/extension-underline": "^2.3.2",

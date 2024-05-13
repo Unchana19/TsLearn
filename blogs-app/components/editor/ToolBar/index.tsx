@@ -22,9 +22,13 @@ import EmbedYoutube from "./EmbedYoutube";
 
 interface Props {
   editor: Editor | null;
+  onOpenImageClick?(): void;
 }
 
-const ToolBar: FC<Props> = ({ editor }): JSX.Element | null => {
+const ToolBar: FC<Props> = ({
+  editor,
+  onOpenImageClick,
+}): JSX.Element | null => {
   if (!editor) return null;
 
   const options = [
@@ -153,7 +157,7 @@ const ToolBar: FC<Props> = ({ editor }): JSX.Element | null => {
       <div className="h-4 w-[1px] bg-secondary-dark dark:bg-secondary-light mx-8" />
       <div className="flex item-center space-x-3">
         <EmbedYoutube onSubmit={handleEmbedYoutube} />
-        <Button>
+        <Button onClick={onOpenImageClick}>
           <BsImageFill />
         </Button>
       </div>
