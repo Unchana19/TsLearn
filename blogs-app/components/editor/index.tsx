@@ -9,12 +9,37 @@ import EditLink from "./Link/EditLink";
 import Youtube from "@tiptap/extension-youtube";
 import TipTapImage from "@tiptap/extension-image";
 import GalleryModal, { ImageSelectionResult } from "./GalleryModal.tsx";
+import axios from "axios";
 
 interface Props {}
 
 const Editor: FC<Props> = (): JSX.Element => {
   const [selectionRange, setSelectionRange] = useState<Range>();
   const [showGallery, setShowGallery] = useState<boolean>(false);
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [images, setImages] = useState<{ src: string }[]>([]);
+
+  const fetchImages = async () => {
+    const { data } = await axios.get("/api/images");
+    setImages(data.images);
+  };
+
+  const handleImageUpload = async (image: File) => {
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("image", image);
+    const { data } = await axios.post("/api/images", formData);
+    setUploading(false);
+    setImages([data, ...images]);
+  };
+
+  const handleImageSelect = (result: ImageSelectionResult) => {
+    editor
+      ?.chain()
+      .focus()
+      .setImage({ src: result.src, alt: result.altText })
+      .run();
+  };
 
   const editor = useEditor({
     extensions: [
@@ -60,19 +85,15 @@ const Editor: FC<Props> = (): JSX.Element => {
     },
   });
 
-  const handleImageSelect = (result: ImageSelectionResult) => {
-    editor
-      ?.chain()
-      .focus()
-      .setImage({ src: result.src, alt: result.altText })
-      .run();
-  };
-
   useEffect(() => {
     if (editor && selectionRange) {
       editor.commands.setTextSelection(selectionRange);
     }
   }, [editor, selectionRange]);
+
+  useEffect(() => {
+    fetchImages();
+  }, []);
 
   return (
     <>
@@ -86,14 +107,14 @@ const Editor: FC<Props> = (): JSX.Element => {
         <EditorContent editor={editor} />
       </div>
       <GalleryModal
+        images={images}
         visible={showGallery}
         onClose={() => setShowGallery(false)}
         onSelect={(result) => {
           handleImageSelect(result);
         }}
-        onFileSelect={() => {
-
-        }}
+        onFileSelect={handleImageUpload}
+        uploading={uploading}
       />
     </>
   );
