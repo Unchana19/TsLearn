@@ -177,7 +177,7 @@ const Editor: FC<Props> = ({
         <SEOForm
           onChange={updateSeoValue}
           title={post.title}
-          initialValue={initialValue}
+          initialValue={seoInitialValue}
         />
       </div>
 
