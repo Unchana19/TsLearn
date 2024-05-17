@@ -1,27 +1,38 @@
-import { Schema, models, model } from "mongoose";
-//title, content, slug, tags, thumbnail, meta, author, date
+import { Schema, models, model, ObjectId, Model } from "mongoose";
 
-const PostSchema = new Schema(
+// title, content, slug, tags, thumbnail, meta, author, date
+interface PostModelSchema {
+  title: string;
+  slug: string;
+  meta: string;
+  content: string;
+  tags: string[];
+  thumbnail?: { url: string; public_id: string };
+  author: ObjectId;
+  createdAt: Date;
+}
+
+const PostSchema = new Schema<PostModelSchema>(
   {
     title: {
       type: String,
-      require: true,
+      required: true,
       trim: true,
     },
     slug: {
       type: String,
-      require: true,
+      required: true,
       trim: true,
       unique: true,
     },
     content: {
       type: String,
-      require: true,
+      required: true,
       trim: true,
     },
     meta: {
       type: String,
-      require: true,
+      required: true,
       trim: true,
     },
     tags: {
@@ -37,8 +48,11 @@ const PostSchema = new Schema(
       ref: "User",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 const Post = models?.Post || model("Post", PostSchema);
-export default Post;
+
+export default Post as Model<PostModelSchema>;

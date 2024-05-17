@@ -15,6 +15,7 @@ import ActionButton from "../common/ActionButton";
 import ThumbnailSelector from "./ThumbnailSelector";
 
 export interface FinalPost extends SeoResult {
+  id?: string;
   title: string;
   content: string;
   thumbnail?: File | string;
@@ -34,8 +35,8 @@ const Editor: FC<Props> = ({
   onSubmit,
 }): JSX.Element => {
   const [selectionRange, setSelectionRange] = useState<Range>();
-  const [showGallery, setShowGallery] = useState<boolean>(false);
-  const [uploading, setUploading] = useState<boolean>(false);
+  const [showGallery, setShowGallery] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [images, setImages] = useState<{ src: string }[]>([]);
   const [seoInitialValue, setSeoInitialValue] = useState<SeoResult>();
   const [post, setPost] = useState<FinalPost>({
@@ -57,27 +58,8 @@ const Editor: FC<Props> = ({
     formData.append("image", image);
     const { data } = await axios.post("/api/images", formData);
     setUploading(false);
+
     setImages([data, ...images]);
-  };
-
-  const updateTitle: ChangeEventHandler<HTMLInputElement> = ({ target }) =>
-    setPost({ ...post, title: target.value });
-
-  const updateSeoValue = (result: SeoResult) => setPost({ ...post, ...result });
-
-  const updateThumbnail = (file: File) => setPost({ ...post, thumbnail: file });
-
-  const handleImageSelect = (result: ImageSelectionResult) => {
-    editor
-      ?.chain()
-      .focus()
-      .setImage({ src: result.src, alt: result.altText })
-      .run();
-  };
-
-  const handleSubmit = () => {
-    if (!editor) return;
-    onSubmit({ ...post, content: editor.getHTML() });
   };
 
   const editor = useEditor({
@@ -93,7 +75,7 @@ const Editor: FC<Props> = ({
         },
       }),
       Placeholder.configure({
-        placeholder: "Type something...",
+        placeholder: "Type something",
       }),
       Youtube.configure({
         width: 840,
@@ -124,6 +106,26 @@ const Editor: FC<Props> = ({
     },
   });
 
+  const handleImageSelection = (result: ImageSelectionResult) => {
+    editor
+      ?.chain()
+      .focus()
+      .setImage({ src: result.src, alt: result.altText })
+      .run();
+  };
+
+  const handleSubmit = () => {
+    if (!editor) return;
+    onSubmit({ ...post, content: editor.getHTML() });
+  };
+
+  const updateTitle: ChangeEventHandler<HTMLInputElement> = ({ target }) =>
+    setPost({ ...post, title: target.value });
+
+  const updateSeoValue = (result: SeoResult) => setPost({ ...post, ...result });
+
+  const updateThumbnail = (file: File) => setPost({ ...post, thumbnail: file });
+
   useEffect(() => {
     if (editor && selectionRange) {
       editor.commands.setTextSelection(selectionRange);
@@ -147,33 +149,41 @@ const Editor: FC<Props> = ({
   return (
     <>
       <div className="p-3 dark:bg-primary-dark bg-primary transition">
-        <div className="sticky top-0 z-10 bg-primary dark:bg-primary-dark"></div>
-        {/* Thumbnail Selector and Submit Button */}
-        <div className="flex items-center justify-between mb-3">
-          <ThumbnailSelector
-            initialValue={post.thumbnail as string}
-            onChange={updateThumbnail}
-          />
-          <div className="inline-block">
-            <ActionButton title={btnTitle} busy={busy} onClick={handleSubmit} />
+        <div className="sticky top-0 z-10 dark:bg-primary-dark bg-primary">
+          {/* Thumbnail Selector and Submit Button */}
+          <div className="flex items-center justify-between mb-3">
+            <ThumbnailSelector
+              initialValue={post.thumbnail as string}
+              onChange={updateThumbnail}
+            />
+            <div className="inline-block">
+              <ActionButton
+                busy={busy}
+                title={btnTitle}
+                onClick={handleSubmit}
+                disabled={busy}
+              />
+            </div>
           </div>
+
+          {/* Title Input */}
+          <input
+            type="text"
+            className="py-2 outline-none bg-transparent w-full border-0 border-b-[1px] border-secondary-dark dark:border-secondary-light text-3xl font-semibold italic text-primary-dark dark:text-primary mb-3"
+            placeholder="Title"
+            onChange={updateTitle}
+            value={post.title}
+          />
+          <ToolBar
+            editor={editor}
+            onOpenImageClick={() => setShowGallery(true)}
+          />
+          <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3" />
         </div>
 
-        {/* Title Input */}
-        <input
-          type="text"
-          className="py-2 outline-none bg-transparent w-full border-0 border-b-[1px] boder-secondary-dark dark:border-secondary-light text-3xl font-semibold italic text-primary-dark dark:text-primary mb-3"
-          placeholder="Title"
-          onChange={updateTitle}
-        />
-        <ToolBar
-          editor={editor}
-          onOpenImageClick={() => setShowGallery(true)}
-        />
-        <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3"></div>
         {editor ? <EditLink editor={editor} /> : null}
         <EditorContent editor={editor} className="min-h-[300px]" />
-        <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3"></div>
+        <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3" />
         <SEOForm
           onChange={updateSeoValue}
           title={post.title}
@@ -182,12 +192,10 @@ const Editor: FC<Props> = ({
       </div>
 
       <GalleryModal
-        images={images}
         visible={showGallery}
         onClose={() => setShowGallery(false)}
-        onSelect={(result) => {
-          handleImageSelect(result);
-        }}
+        onSelect={handleImageSelection}
+        images={images}
         onFileSelect={handleImageUpload}
         uploading={uploading}
       />

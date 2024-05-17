@@ -22,7 +22,7 @@
     "axios": "^1.6.8",
     "classnames": "^2.5.1",
     "cloudinary": "^2.2.0",
-    "formidable": "^3.5.1",
+    "formidable": "^2.0.1",
     "joi": "^17.13.1",
     "mongoose": "^8.3.5",
     "next": "14.2.3",

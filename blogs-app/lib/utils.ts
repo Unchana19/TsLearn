@@ -1,18 +1,20 @@
 import formidable from "formidable";
-import { IncomingMessage } from "node:http";
+import { NextApiRequest } from "next";
 
-interface FormidablePromise {
-  files: formidable.Files<string>;
-  body: formidable.Fields;
+interface FormidablePromise<T> {
+  files: formidable.Files;
+  body: T;
 }
 
-export const readFile = (req: IncomingMessage): Promise<FormidablePromise> => {
+export const readFile = <T extends object>(
+  req: NextApiRequest
+): Promise<FormidablePromise<T>> => {
   const form = formidable();
   return new Promise((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) reject(err);
 
-      resolve({ files, body: fields });
+      resolve({ files, body: fields as T });
     });
   });
 };
