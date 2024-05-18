@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { FC, useEffect, useRef, useState } from "react";
-import Logo from "./Logo";
 import { IconType } from "react-icons";
 import { RiMenuFold4Fill, RiMenuUnfold4Fill } from "react-icons/ri";
+import Logo from "../Logo";
 
 interface Props {
   navItems: { label: string; icon: IconType; href: string }[];

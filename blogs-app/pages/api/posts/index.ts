@@ -1,6 +1,6 @@
 import cloudinary from "@/lib/cloudinary";
 import dbConnect from "@/lib/dbConnect";
-import { readFile } from "@/lib/utils";
+import { formatPosts, readFile, readPostsFromDB } from "@/lib/utils";
 import { postValidationSchema, validateSchema } from "@/lib/validator";
 import Post from "@/models/Post";
 import formidable from "formidable";
@@ -14,10 +14,7 @@ export const config = {
 const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;
   switch (method) {
-    case "GET": {
-      await dbConnect();
-      res.json({ ok: true });
-    }
+    case "GET": return readPosts(req, res)
     case "POST":
       return createNewPost(req, res);
   }
@@ -64,5 +61,16 @@ const createNewPost: NextApiHandler = async (req: NextApiRequest, res: NextApiRe
 
   res.json({ post: newPost });
 };
+
+const readPosts: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    const { limit, pageNo } = req.query as { limit: string, pageNo: string };
+    const posts = await readPostsFromDB(parseInt(limit), parseInt(pageNo));
+
+    res.json({ posts: formatPosts(posts) });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message })
+  }
+}
 
 export default handler;

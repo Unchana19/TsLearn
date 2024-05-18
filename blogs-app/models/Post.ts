@@ -1,7 +1,7 @@
 import { Schema, models, model, ObjectId, Model } from "mongoose";
 
 // title, content, slug, tags, thumbnail, meta, author, date
-interface PostModelSchema {
+export interface PostModelSchema {
   title: string;
   slug: string;
   meta: string;
