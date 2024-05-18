@@ -1,20 +1,15 @@
+import cloudinary from "@/lib/cloudinary";
 import dbConnect from "@/lib/dbConnect";
 import { readFile } from "@/lib/utils";
 import { postValidationSchema, validateSchema } from "@/lib/validator";
 import Post from "@/models/Post";
+import formidable from "formidable";
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
+import { Incomingpost } from "./[postId]";
 
 export const config = {
   api: { bodyParser: false },
 };
-
-interface postData {
-  title: string;
-  content: string;
-  slug: string;
-  meta: string;
-  tags?: string[];
-}
 
 const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;
@@ -29,9 +24,7 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
 };
 
 const createNewPost: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { files, body } = await readFile(req) as {
-    files: any, body: postData
-  };
+  const { files, body } = await readFile<Incomingpost>(req)
 
   let tags: string[] = [];
 
@@ -41,7 +34,7 @@ const createNewPost: NextApiHandler = async (req: NextApiRequest, res: NextApiRe
   const error = validateSchema(postValidationSchema, { ...body, tags });
   if (error) return res.status(400).json({ error });
 
-  const { title, content, slug, meta } = body as postData;
+  const { title, content, slug, meta } = body;
 
   await dbConnect();
   const alreadyExists = await Post.findOne({
@@ -57,6 +50,15 @@ const createNewPost: NextApiHandler = async (req: NextApiRequest, res: NextApiRe
     meta,
     tags,
   });
+
+  const thumbnail = files.thumbnail as unknown as formidable.File;
+
+  if (thumbnail) {
+    const { secure_url: url, public_id } = await cloudinary.uploader.upload(thumbnail.filepath, {
+      folder: "dev-blogs"
+    });
+    newPost.thumbnail = { url, public_id };
+  }
 
   await newPost.save();
 

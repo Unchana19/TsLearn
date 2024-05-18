@@ -21,6 +21,7 @@ const ThumbnailSelector: FC<Props> = ({
 
     const file = files[0];
     setSelectedThumbnail(URL.createObjectURL(file));
+    onChange(file);
   };
 
   useEffect(() => {
