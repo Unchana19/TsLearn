@@ -1,5 +1,4 @@
 import InfiniteScrollPosts from "@/components/common/InfiniteScrollPosts";
-import PostCard from "@/components/common/PostCard";
 import AdminLayout from "@/components/layout/AdminLayout";
 import { formatPosts, readPostsFromDB } from "@/lib/utils";
 import axios from "axios";
