@@ -1,4 +1,5 @@
-interface PostDetail {
+export interface PostDetail {
+  id: string;
   title: string;
   slug: string;
   meta: string;

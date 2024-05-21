@@ -1,6 +1,9 @@
+import ConfirmModal from "@/components/common/ConfirmModal";
 import InfiniteScrollPosts from "@/components/common/InfiniteScrollPosts";
 import AdminLayout from "@/components/layout/AdminLayout";
 import { formatPosts, readPostsFromDB } from "@/lib/utils";
+import { filterPosts } from "@/utils/helper";
+import { PostDetail } from "@/utils/types";
 import axios from "axios";
 import {
   GetServerSideProps,
@@ -35,14 +38,20 @@ const Posts: NextPage<Props> = ({ posts }): JSX.Element => {
   };
 
   return (
-    <AdminLayout>
-      <InfiniteScrollPosts
-        hasMore={hasMorePost}
-        next={fetchMorePosts}
-        dataLength={postsToRender.length}
-        posts={postsToRender}
-      />
-    </AdminLayout>
+    <>
+      <AdminLayout>
+        <InfiniteScrollPosts
+          hasMore={hasMorePost}
+          next={fetchMorePosts}
+          dataLength={postsToRender.length}
+          posts={postsToRender}
+          showControls
+          onPostRemoved={(post) => {
+            setPostsToRender(filterPosts(posts, post));
+          }}
+        />
+      </AdminLayout>
+    </>
   );
 };
 

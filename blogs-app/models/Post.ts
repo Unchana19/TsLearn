@@ -2,6 +2,7 @@ import { Schema, models, model, ObjectId, Model } from "mongoose";
 
 // title, content, slug, tags, thumbnail, meta, author, date
 export interface PostModelSchema {
+  _id: ObjectId;
   title: string;
   slug: string;
   meta: string;

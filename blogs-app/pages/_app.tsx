@@ -10,7 +10,7 @@ interface Props {
 export default function App({ Component, pageProps }: AppProps<Props>) {
   return (
     <SessionProvider session={pageProps.session}>
-      <Component {...pageProps} />;
+      <Component {...pageProps} />
     </SessionProvider>
   );
 }

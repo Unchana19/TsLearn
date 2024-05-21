@@ -3,6 +3,8 @@ import { FC, useEffect, useRef, useState } from "react";
 import { IconType } from "react-icons";
 import { RiMenuFold4Fill, RiMenuUnfold4Fill } from "react-icons/ri";
 import Logo from "../Logo";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
 
 interface Props {
   navItems: { label: string; icon: IconType; href: string }[];
@@ -62,7 +64,7 @@ const AdminNav: FC<Props> = ({ navItems }): JSX.Element => {
         <Link href="/admin" className="flex items-center space-x-2 p-3 mb-5">
           <Logo className="fill-highlight-light dark:fill-highlight-dark w-5 h-5" />
           {visible && (
-            <span className="fill-highlight-light dark:fill-highlight-dark text-xl font-semibold leading-none">
+            <span className="text-primary-dark dark:text-primary text-xl font-semibold leading-none">
               Admin
             </span>
           )}
@@ -73,14 +75,22 @@ const AdminNav: FC<Props> = ({ navItems }): JSX.Element => {
           {navItems.map(
             (item: { label: string; icon: IconType; href: string }) => {
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center fill-highlight-light dark:fill-highlight-dark text-xl p-3 hover:scale-[0.98] transition"
-                >
-                  <item.icon size={24} />
-                  {visible && <span className="ml-2 leading-none">{item.label}</span>}
-                </Link>
+                <Tippy key={item.href} content={item.label}>
+                  <Link
+                    href={item.href}
+                    className="flex items-center  text-xl p-3 hover:scale-[0.98] transition"
+                  >
+                    <item.icon
+                      className="fill-highlight-light dark:fill-highlight-dark"
+                      size={24}
+                    />
+                    {visible && (
+                      <span className="ml-2 leading-none text-primary-dark dark:text-primary">
+                        {item.label}
+                      </span>
+                    )}
+                  </Link>
+                </Tippy>
               );
             }
           )}
@@ -90,12 +100,18 @@ const AdminNav: FC<Props> = ({ navItems }): JSX.Element => {
       {/* Nav Toggle Button */}
       <button
         onClick={updateNavState}
-        className="fill-highlight-light dark:fill-highlight-dark p-3 hover:scale-[0.98] transition self-end"
+        className=" p-3 hover:scale-[0.98] transition self-end"
       >
         {visible ? (
-          <RiMenuUnfold4Fill size={25} />
+          <RiMenuUnfold4Fill
+            className="fill-highlight-light dark:fill-highlight-dark"
+            size={25}
+          />
         ) : (
-          <RiMenuFold4Fill size={25} />
+          <RiMenuFold4Fill
+            className="fill-highlight-light dark:fill-highlight-dark"
+            size={25}
+          />
         )}
       </button>
     </nav>
