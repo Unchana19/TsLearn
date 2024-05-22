@@ -9,6 +9,11 @@ export const authOptions: NextAuthOptions = {
     GithubAuthProvider({
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+      authorization: {
+        params: {
+          redirect_uri: process.env.NEXTAUTH_URL + '/api/auth/callback/github',
+        }
+      },
       async profile(profile) {
         //find out the user
         await dbConnect();
