@@ -15,7 +15,7 @@ interface Props {
 }
 
 const commonInput =
-  "w-full bg-transparent outline-none border-2 border-secondary-dark focus:border-primary-dark focus:dark:border-primary rounded transition text-primary-dark dark:text-primary p-2";
+  "w-full bg-transparent outline-none border-2 border-secondary-dark focus:border-primary-dark focus:dark:border-primary rounded transition   text-primary-dark dark:text-primary p-2";
 
 const SEOForm: FC<Props> = ({
   initialValue,
@@ -35,14 +35,20 @@ const SEOForm: FC<Props> = ({
   };
 
   useEffect(() => {
-    const slug = slugify(title.toLowerCase());
+    const slug = slugify(title.toLowerCase(), {
+      strict: true,
+    });
     const newValues = { ...values, slug };
     setValues(newValues);
+    onChange(newValues);
   }, [title]);
 
   useEffect(() => {
     if (initialValue) {
-      setValues({ ...initialValue, slug: slugify(initialValue.slug) });
+      setValues({
+        ...initialValue,
+        slug: slugify(initialValue.slug, { strict: true }),
+      });
     }
   }, [initialValue]);
 
@@ -53,6 +59,7 @@ const SEOForm: FC<Props> = ({
       <h1 className="text-primary-dark dark:text-primary text-xl font-semibold">
         Seo Section
       </h1>
+
       <Input
         value={slug}
         onChange={handleChange}
@@ -60,6 +67,7 @@ const SEOForm: FC<Props> = ({
         placeholder="slug-goes-here"
         label="Slug:"
       />
+
       <Input
         value={tags}
         onChange={handleChange}
@@ -101,7 +109,7 @@ const Input: FC<{
         name={name}
         value={value}
         placeholder={placeholder}
-        className={classnames(commonInput, "italic, pl-10")}
+        className={classnames(commonInput, "italic pl-12")}
         onChange={onChange}
       />
     </label>

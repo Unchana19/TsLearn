@@ -5,10 +5,11 @@ import CheckMark from "@/components/common/CheckMark";
 interface Props {
   src: string;
   selected?: boolean;
+  alt: string;
   onClick?(): void;
 }
 
-const Image: FC<Props> = ({ src, selected, onClick }): JSX.Element => {
+const Image: FC<Props> = ({ src, alt, selected, onClick }): JSX.Element => {
   return (
     <div
       onClick={onClick}
@@ -17,7 +18,7 @@ const Image: FC<Props> = ({ src, selected, onClick }): JSX.Element => {
       <NextImage
         src={src}
         fill
-        alt="gallery"
+        alt={alt}
         objectFit="cover"
         className="bg-secodary-light hover:scale-110 transition"
       />

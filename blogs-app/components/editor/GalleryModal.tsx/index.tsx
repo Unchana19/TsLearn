@@ -94,7 +94,7 @@ const GalleryModal: FC<Props> = ({
                       fill
                       src={selectedImage}
                       objectFit="contain"
-                      alt=""
+                      alt="selected"
                     />
                   </div>
                 </>

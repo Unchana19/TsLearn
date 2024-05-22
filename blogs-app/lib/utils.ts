@@ -1,8 +1,10 @@
 import formidable from "formidable";
-import { NextApiRequest } from "next";
+import { NextApiRequest, NextApiResponse } from "next";
 import dbConnect from "./dbConnect";
 import Post, { PostModelSchema } from "@/models/Post";
-import { PostDetail } from "@/utils/types";
+import { PostDetail, UserProfile } from "@/utils/types";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 interface FormidablePromise<T> {
   files: formidable.Files;
@@ -22,11 +24,11 @@ export const readFile = <T extends object>(
   });
 };
 
-export const readPostsFromDB = async (limit: number, pageNo: number) => {
+export const readPostsFromDB = async (limit: number, pageNo: number, skip?: number) => {
   if (!limit || limit > 10) throw Error("Please use limit under 10 and a valid pageNo");
-  const skip = limit * pageNo;
+  const finalSkip = skip || limit * pageNo;
   await dbConnect();
-  const posts = await Post.find().sort({ createdAt: "desc" }).select("-content").skip(skip).limit(limit);
+  const posts = await Post.find().sort({ createdAt: "desc" }).select("-content").skip(finalSkip).limit(limit);
 
   return posts;
 }
@@ -41,4 +43,10 @@ export const formatPosts = (posts: PostModelSchema[]): PostDetail[] => {
     meta: post.meta,
     tags: post.tags,
   }));
+}
+
+export const isAdmin = async (req: NextApiRequest, res: NextApiResponse) => {
+  const session = await getServerSession(req, res, authOptions);
+  const user = session?.user as UserProfile;
+  return user && user.role === "admin";
 }

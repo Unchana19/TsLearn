@@ -19,7 +19,7 @@ const limit = 9;
 
 const Home: NextPage<Props> = ({ posts }): JSX.Element => {
   const [postsToRender, setPostsToRender] = useState(posts);
-  const [hasMorePost, setHasMorePosts] = useState(true);
+  const [hasMorePost, setHasMorePosts] = useState(posts.length >= limit);
 
   const { data } = useSession();
   const profile = data?.user as UserProfile;
@@ -30,7 +30,7 @@ const Home: NextPage<Props> = ({ posts }): JSX.Element => {
     try {
       pageNo++;
       const { data } = await axios(
-        `/api/posts?limit=${limit}&pageNo=${pageNo}`
+        `/api/posts?limit=${limit}&skip=${postsToRender.length}`
       );
       if (data.posts.length < limit) {
         setHasMorePosts(false);

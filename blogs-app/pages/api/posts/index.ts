@@ -1,6 +1,6 @@
 import cloudinary from "@/lib/cloudinary";
 import dbConnect from "@/lib/dbConnect";
-import { formatPosts, readFile, readPostsFromDB } from "@/lib/utils";
+import { formatPosts, isAdmin, readFile, readPostsFromDB } from "@/lib/utils";
 import { postValidationSchema, validateSchema } from "@/lib/validator";
 import Post from "@/models/Post";
 import formidable from "formidable";
@@ -14,13 +14,17 @@ export const config = {
 const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;
   switch (method) {
-    case "GET": return readPosts(req, res)
+    case "GET":
+      return readPosts(req, res)
     case "POST":
       return createNewPost(req, res);
   }
 };
 
 const createNewPost: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
+  const admin = await isAdmin(req, res);
+  if (!admin) return res.status(401).json({ error: "unauthorized request!" });
+
   const { files, body } = await readFile<Incomingpost>(req)
 
   let tags: string[] = [];
@@ -64,8 +68,8 @@ const createNewPost: NextApiHandler = async (req: NextApiRequest, res: NextApiRe
 
 const readPosts: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const { limit, pageNo } = req.query as { limit: string, pageNo: string };
-    const posts = await readPostsFromDB(parseInt(limit), parseInt(pageNo));
+    const { limit, pageNo, skip } = req.query as { limit: string, pageNo: string, skip: string };
+    const posts = await readPostsFromDB(parseInt(limit), parseInt(pageNo), parseInt(skip));
 
     res.json({ posts: formatPosts(posts) });
   } catch (error: any) {

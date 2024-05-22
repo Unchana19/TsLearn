@@ -1,4 +1,3 @@
-import ConfirmModal from "@/components/common/ConfirmModal";
 import InfiniteScrollPosts from "@/components/common/InfiniteScrollPosts";
 import AdminLayout from "@/components/layout/AdminLayout";
 import { formatPosts, readPostsFromDB } from "@/lib/utils";
@@ -19,13 +18,13 @@ const limit = 9;
 
 const Posts: NextPage<Props> = ({ posts }): JSX.Element => {
   const [postsToRender, setPostsToRender] = useState(posts);
-  const [hasMorePost, setHasMorePosts] = useState(true);
+  const [hasMorePost, setHasMorePosts] = useState(posts.length >= limit);
 
   const fetchMorePosts = async () => {
     try {
       pageNo++;
       const { data } = await axios(
-        `/api/posts?limit=${limit}&pageNo=${pageNo}`
+        `/api/posts?limit=${limit}&skip=${postsToRender.length}`
       );
       if (data.posts.length < limit) {
         setHasMorePosts(false);
@@ -47,7 +46,7 @@ const Posts: NextPage<Props> = ({ posts }): JSX.Element => {
           posts={postsToRender}
           showControls
           onPostRemoved={(post) => {
-            setPostsToRender(filterPosts(posts, post));
+            setPostsToRender(filterPosts(postsToRender, post));
           }}
         />
       </AdminLayout>
