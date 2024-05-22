@@ -5,6 +5,7 @@ import type { AppProps } from "next/app";
 import Router from "next/router";
 import nProgress from "nprogress";
 import "nprogress/nprogress.css";
+import { useEffect } from "react";
 
 interface Props {
   session?: Session | null;

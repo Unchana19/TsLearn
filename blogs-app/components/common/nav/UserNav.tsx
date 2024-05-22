@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import Logo from "../Logo";
 import { APP_NAME } from "../AppHead";
 import { HiLightBulb } from "react-icons/hi";
@@ -31,7 +31,7 @@ const UserNav: FC<Props> = (props): JSX.Element => {
   const { toggleTheme } = useDarkMode();
 
   const handleLoginWithGithub = async () => {
-    await signIn("github");
+    await signIn("github", { callbackUrl: "/" });
   };
 
   const dropdownOption: dropdownOption = isAdmin

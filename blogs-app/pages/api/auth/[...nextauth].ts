@@ -89,7 +89,7 @@ export const authOptions: NextAuthOptions = {
           role: user.role,
         } as UserProfile
       return session
-    }
+    },
   },
   pages: {
     signIn: "/auth/signin",

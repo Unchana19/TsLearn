@@ -1,17 +1,12 @@
 import { GithubAuthButton } from "@/components/button";
 import { NextPage } from "next";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/router";
 
 interface Props {}
 
 const Signin: NextPage<Props> = () => {
-  const router = useRouter();
-
   const handleLoginWithGithub = async () => {
-    await signIn("github").then(() => {
-      router.push("/");
-    });
+    await signIn("github", { callbackUrl: "/" });
   };
 
   return (
