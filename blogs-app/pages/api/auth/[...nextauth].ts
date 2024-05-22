@@ -91,10 +91,10 @@ export const authOptions: NextAuthOptions = {
       return session
     }
   },
-  pages: {
-    signIn: "/auth/signin",
-    error: "/404",
-  }
+  // pages: {
+  //   signIn: "/auth/signin",
+  //   error: "/404",
+  // }
 };
 
 export default NextAuth(authOptions);

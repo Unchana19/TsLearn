@@ -4,9 +4,10 @@ import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import Router from "next/router";
 import nProgress from "nprogress";
+import "nprogress/nprogress.css";
 
 interface Props {
-  session: Session | null;
+  session?: Session | null;
 }
 
 nProgress.configure({ showSpinner: false });
