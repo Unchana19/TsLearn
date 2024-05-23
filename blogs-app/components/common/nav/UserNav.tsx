@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import Logo from "../Logo";
 import { APP_NAME } from "../AppHead";
 import { HiLightBulb } from "react-icons/hi";
 import { GithubAuthButton } from "@/components/button";
 import ProfileHead from "../ProfileHead";
 import DropdownOption, { dropdownOption } from "../DropdownOption";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { UserProfile } from "@/utils/types";
 import useDarkMode from "@/hooks/useDarkMode";
@@ -29,10 +29,6 @@ const UserNav: FC<Props> = (props): JSX.Element => {
   const profile = data?.user as UserProfile | undefined;
   const isAdmin = profile && profile.role === "admin";
   const { toggleTheme } = useDarkMode();
-
-  const handleLoginWithGithub = async () => {
-    await signIn("github", { callbackUrl: "/" });
-  };
 
   const dropdownOption: dropdownOption = isAdmin
     ? [
@@ -64,7 +60,7 @@ const UserNav: FC<Props> = (props): JSX.Element => {
             head={<ProfileHead nameInitial="N" lightOnly />}
           />
         ) : (
-          <GithubAuthButton onClick={handleLoginWithGithub} lightOnly />
+          <GithubAuthButton lightOnly />
         )}
       </div>
     </div>

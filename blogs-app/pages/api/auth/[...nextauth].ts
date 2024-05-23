@@ -4,16 +4,24 @@ import { UserProfile } from "@/utils/types";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GithubAuthProvider from "next-auth/providers/github";
 
+const {
+  GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_SECRET,
+  GITHUB_CLIENT_ID_LOCAL,
+  GITHUB_CLIENT_SECRET_LOCAL,
+  MODE,
+} = process.env
+
+const GIT_CLIENT_ID = MODE === "development" ? GITHUB_CLIENT_ID_LOCAL : GITHUB_CLIENT_ID
+const GIT_CLIENT_SECRET = MODE === "development" ? GITHUB_CLIENT_SECRET_LOCAL : GITHUB_CLIENT_SECRET
+
+console.log(GIT_CLIENT_SECRET);
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GithubAuthProvider({
-      clientId: process.env.GITHUB_CLIENT_ID as string,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-      authorization: {
-        params: {
-          redirect_uri: process.env.NEXTAUTH_URL + '/api/auth/callback/github',
-        }
-      },
+      clientId: GIT_CLIENT_ID as string,
+      clientSecret: GIT_CLIENT_SECRET as string,
       async profile(profile) {
         //find out the user
         await dbConnect();

@@ -1,18 +1,13 @@
-import { EditorContent, getMarkRange, useEditor, Range } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+import { EditorContent, Range } from "@tiptap/react";
 import { ChangeEventHandler, FC, useEffect, useState } from "react";
 import ToolBar from "./ToolBar";
-import Underline from "@tiptap/extension-underline";
-import Placeholder from "@tiptap/extension-placeholder";
-import Link from "@tiptap/extension-link";
 import EditLink from "./Link/EditLink";
-import Youtube from "@tiptap/extension-youtube";
-import TipTapImage from "@tiptap/extension-image";
 import GalleryModal, { ImageSelectionResult } from "./GalleryModal.tsx";
 import axios from "axios";
 import SEOForm, { SeoResult } from "./SEOForm";
 import ActionButton from "../common/ActionButton";
 import ThumbnailSelector from "./ThumbnailSelector";
+import useEditorConfig from "@/hooks/useEditorConfig";
 
 export interface FinalPost extends SeoResult {
   id?: string;
@@ -34,7 +29,6 @@ const Editor: FC<Props> = ({
   busy = false,
   onSubmit,
 }): JSX.Element => {
-  const [selectionRange, setSelectionRange] = useState<Range>();
   const [showGallery, setShowGallery] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [images, setImages] = useState<{ src: string }[]>([]);
@@ -62,49 +56,7 @@ const Editor: FC<Props> = ({
     setImages([data, ...images]);
   };
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Underline,
-      Link.configure({
-        autolink: false,
-        linkOnPaste: false,
-        openOnClick: false,
-        HTMLAttributes: {
-          target: "",
-        },
-      }),
-      Placeholder.configure({
-        placeholder: "Type something",
-      }),
-      Youtube.configure({
-        width: 840,
-        height: 472.5,
-        HTMLAttributes: {
-          class: "mx-auto rounded",
-        },
-      }),
-      TipTapImage.configure({
-        HTMLAttributes: {
-          class: "mx-auto",
-        },
-      }),
-    ],
-    editorProps: {
-      handleClick(view, pos, event) {
-        const { state } = view;
-        const selectionRange = getMarkRange(
-          state.doc.resolve(pos),
-          state.schema.marks.link
-        );
-        if (selectionRange) setSelectionRange(selectionRange);
-      },
-      attributes: {
-        class:
-          "prose prose-lg focus:outline-none dark:prose-invert max-w-full mx-auto h-full",
-      },
-    },
-  });
+  const { editor, selectionRange } = useEditorConfig();
 
   const handleImageSelection = (result: ImageSelectionResult) => {
     editor

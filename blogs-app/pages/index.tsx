@@ -1,15 +1,15 @@
 import InfiniteScrollPosts from "@/components/common/InfiniteScrollPosts";
 import DefaultLayout from "@/components/layout/DefaultLayout";
+import useAuth from "@/hooks/useAuth";
 import { formatPosts, readPostsFromDB } from "@/lib/utils";
 import { filterPosts } from "@/utils/helper";
-import { PostDetail, UserProfile } from "@/utils/types";
+import { PostDetail } from "@/utils/types";
 import axios from "axios";
 import {
   GetServerSideProps,
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
 
 type Props = InferGetServerSidePropsType<typeof getServerSideProps>;
@@ -21,9 +21,7 @@ const Home: NextPage<Props> = ({ posts }): JSX.Element => {
   const [postsToRender, setPostsToRender] = useState(posts);
   const [hasMorePost, setHasMorePosts] = useState(posts.length >= limit);
 
-  const { data } = useSession();
-  const profile = data?.user as UserProfile;
-
+  const profile = useAuth();
   const isAdmin = profile && profile.role === "admin";
 
   const fetchMorePosts = async () => {

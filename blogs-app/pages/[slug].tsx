@@ -10,14 +10,19 @@ import {
 import parse from "html-react-parser";
 import Image from "next/image";
 import dateFormat from "dateformat";
+import useAuth from "@/hooks/useAuth";
+import CommentForm from "@/components/common/CommentForm";
+import { GithubAuthButton } from "@/components/button";
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
 const SinglePost: NextPage<Props> = ({ post }) => {
+  const userProfile = useAuth();
+
   const { title, content, tags, meta, slug, thumbnail, createdAt } = post;
   return (
     <DefaultLayout title={title} desc={meta}>
-      <div className="pb-20">
+      <div>
         {thumbnail ? (
           <div className="relative aspect-video">
             <Image src={thumbnail} alt={title} layout="fill" />
@@ -37,6 +42,20 @@ const SinglePost: NextPage<Props> = ({ post }) => {
 
         <div className="prose prose-lg dark:prose-invert max-w-full mx-auto">
           {parse(content)}
+        </div>
+
+        {/* comment form */}
+        <div className="py-20">
+          {userProfile ? (
+            <CommentForm title="Add comment" />
+          ) : (
+            <div className="flex flex-col items-end space-y-2">
+              <h3 className="text-secondary-dark text-xl font-semibold">
+                Log in to add comment
+              </h3>
+              <GithubAuthButton />
+            </div>
+          )}
         </div>
       </div>
     </DefaultLayout>

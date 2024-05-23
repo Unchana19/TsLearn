@@ -1,10 +1,10 @@
 import classNames from "classnames";
+import { signIn } from "next-auth/react";
 import { FC, useCallback } from "react";
 import { AiFillGithub } from "react-icons/ai";
 
 interface Props {
   lightOnly?: boolean;
-  onClick?(): void;
 }
 
 const commonClass =
@@ -12,14 +12,21 @@ const commonClass =
 
 export const GithubAuthButton: FC<Props> = ({
   lightOnly,
-  onClick,
 }): JSX.Element => {
   const getStyle = useCallback(() => {
     if (lightOnly) return "text-primary-dark bg-primary";
     return "dark:text-primary-dark text-primary bg-primary-dark dark:bg-primary";
   }, [lightOnly]);
+
+  const handleClick = async () => {
+    await signIn("github");
+  };
+
   return (
-    <button onClick={onClick} className={classNames(commonClass, getStyle())}>
+    <button
+      onClick={handleClick}
+      className={classNames(commonClass, getStyle())}
+    >
       <span>Continue with</span>
       <AiFillGithub size={24} />
     </button>
