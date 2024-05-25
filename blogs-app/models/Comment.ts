@@ -16,7 +16,6 @@ const CommentSchema = new Schema<IComment>({
   belongsTo: {
     type: Schema.Types.ObjectId,
     ref: "Post",
-    required: true,
   },
   owner: {
     type: Schema.Types.ObjectId,
