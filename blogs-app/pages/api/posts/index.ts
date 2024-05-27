@@ -3,9 +3,9 @@ import dbConnect from "@/lib/dbConnect";
 import { formatPosts, isAdmin, readFile, readPostsFromDB } from "@/lib/utils";
 import { postValidationSchema, validateSchema } from "@/lib/validator";
 import Post from "@/models/Post";
+import { Incomingpost } from "@/utils/types";
 import formidable from "formidable";
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
-import { Incomingpost } from "./[postId]";
 
 export const config = {
   api: { bodyParser: false },
