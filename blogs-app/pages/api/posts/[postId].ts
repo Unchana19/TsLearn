@@ -2,20 +2,13 @@ import cloudinary from "@/lib/cloudinary";
 import { readFile } from "@/lib/utils";
 import { postValidationSchema, validateSchema } from "@/lib/validator";
 import Post from "@/models/Post";
+import { Incomingpost } from "@/utils/types";
 import formidable from "formidable";
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
 export const config = {
   api: { bodyParser: false },
 };
-
-export interface Incomingpost {
-  title: string;
-  content: string;
-  slug: string;
-  meta: string;
-  tags: string;
-}
 
 const handler: NextApiHandler = (req: NextApiRequest, res: NextApiResponse) => {
   const { method } = req;

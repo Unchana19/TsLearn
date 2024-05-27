@@ -5,15 +5,32 @@ import ActionButton from "./ActionButton";
 
 interface Props {
   title?: string;
+  onSubmit(content: string): void;
+  busy?: boolean;
 }
 
-const CommentForm: FC<Props> = ({ title }): JSX.Element => {
+const CommentForm: FC<Props> = ({
+  title,
+  busy = false,
+  onSubmit,
+}): JSX.Element => {
   const { editor } = useEditorConfig({ placeholder: "Add your comment..." });
+
+  const handleSubmit = () => {
+    if (editor && !busy) {
+      const value = editor?.getHTML();
+      if (value === "<p></p>") return;
+
+      onSubmit(value);
+    }
+  };
 
   return (
     <div>
       {title ? (
-        <h1 className="text-xl text-primary-dark dark:text-primary py-3">{title}</h1>
+        <h1 className="text-xl text-primary-dark dark:text-primary py-3">
+          {title}
+        </h1>
       ) : null}
       <EditorContent
         className="min-h-[200px] border-2 border-secondary-dark rounded p-2"
@@ -22,7 +39,7 @@ const CommentForm: FC<Props> = ({ title }): JSX.Element => {
 
       <div className="flex justify-end py-3">
         <div className="inline-block">
-          <ActionButton title="Submit" />
+          <ActionButton busy={busy} onClick={handleSubmit} title="Submit" />
         </div>
       </div>
     </div>
