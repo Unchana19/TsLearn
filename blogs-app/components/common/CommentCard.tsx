@@ -1,8 +1,15 @@
-import { FC } from "react";
+import { FC, ReactNode, useState } from "react";
 import ProfileIcon from "./ProfileIcon";
 import dateFormat from "dateformat";
 import parse from "html-react-parser";
-import { BsFillReplyAllFill } from "react-icons/bs";
+import {
+  BsFillReplyAllFill,
+  BsFillTrashFill,
+  BsPencilSquare,
+} from "react-icons/bs";
+import CommentForm from "./CommentForm";
+import { CommentResponse } from "@/utils/types";
+import LikeHeart from "./LikeHeart";
 
 export interface CommentOwnersProfile {
   name: string;
@@ -10,14 +17,55 @@ export interface CommentOwnersProfile {
 }
 
 interface Props {
-  profile: CommentOwnersProfile;
-  date: string;
-  content: string;
+  comment: CommentResponse;
+  showControlls?: boolean;
+  onUpdateSubmit?(content: string): void;
+  onReplySubmit?(content: string): void;
+  onDeleteClick?(): void;
+  onLikeClick?(): void;
 }
 
-const CommentCard: FC<Props> = ({ profile, date, content }): JSX.Element => {
-  const { name, avatar } = profile;
-  console.log(avatar);
+const CommentCard: FC<Props> = ({
+  comment,
+  showControlls = false,
+  onUpdateSubmit,
+  onReplySubmit,
+  onDeleteClick,
+  onLikeClick,
+}): JSX.Element => {
+  const { owner, content, createdAt, likedByOwner, likes } = comment;
+  const { name, avatar } = owner;
+  const [showForm, setShowForm] = useState(false);
+  const [initialState, setInitialState] = useState("");
+
+  const displayReplyForm = () => {
+    setInitialState("");
+    setShowForm(true);
+  };
+
+  const hideReplyForm = () => {
+    setShowForm(false);
+  };
+
+  const handleOnReplyClick = () => {
+    displayReplyForm();
+  };
+
+  const handleOnEditClick = () => {
+    displayReplyForm();
+    setInitialState(content);
+  };
+
+  const handleCommentSubmit = (comment: string) => {
+    //means we want to update
+    if (initialState) {
+      onUpdateSubmit && onUpdateSubmit(comment);
+    } else {
+      onReplySubmit && onReplySubmit(comment);
+    }
+    hideReplyForm();
+  };
+
   return (
     <div className="flex space-x-3">
       <ProfileIcon nameInitial={name[0].toUpperCase()} avatar={avatar} />
@@ -27,19 +75,64 @@ const CommentCard: FC<Props> = ({ profile, date, content }): JSX.Element => {
           {name}
         </h1>
         <span className="text-sm text-secondary-dark">
-          {dateFormat(date, "d-mmm-yyyy")}
+          {dateFormat(createdAt, "d-mmm-yyyy")}
         </span>
-        <p className="text-primary-dark dark:text-primary">{parse(content)}</p>
+        <div className="text-primary-dark dark:text-primary">
+          {parse(content)}
+        </div>
 
-        <div className="flex">
-          <button className="flex items-center text-primary-dark dark:text-primary space-x-2">
+        <div className="flex space-x-4">
+          <LikeHeart
+            liked={likedByOwner}
+            label={`${likes} likes`}
+            onClick={onLikeClick}
+          />
+          <Button onClick={handleOnReplyClick}>
             <BsFillReplyAllFill />
             <span>Reply</span>
-          </button>
+          </Button>
+          {showControlls && (
+            <>
+              <Button onClick={handleOnEditClick}>
+                <BsPencilSquare />
+                <span>Edit</span>
+              </Button>
+              <Button onClick={onDeleteClick}>
+                <BsFillTrashFill />
+                <span>Delete</span>
+              </Button>
+            </>
+          )}
         </div>
+
+        {showForm && (
+          <div className="mt-3">
+            <CommentForm
+              onSubmit={handleCommentSubmit}
+              onClose={hideReplyForm}
+              initialState={initialState}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default CommentCard;
+
+interface ButtonProps {
+  children: ReactNode;
+  onClick?(): void;
+}
+
+const Button: FC<ButtonProps> = ({ children, onClick }) => {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center text-primary-dark dark:text-primary space-x-2"
+    >
+      {children}
+    </button>
+  );
+};

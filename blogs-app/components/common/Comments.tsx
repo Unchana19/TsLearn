@@ -4,7 +4,8 @@ import { GithubAuthButton } from "../button/GithubAuthButton";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { CommentResponse } from "@/utils/types";
-import CommentCard, { CommentOwnersProfile } from "./CommentCard";
+import CommentCard from "./CommentCard";
+import ConfirmModal from "./ConfirmModal";
 
 interface Props {
   belongsTo: string;
@@ -12,7 +13,99 @@ interface Props {
 
 const Comments: FC<Props> = ({ belongsTo }): JSX.Element => {
   const [comments, setComments] = useState<CommentResponse[]>();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [commentTodelete, setCommentToDelete] =
+    useState<CommentResponse | null>(null);
+
   const userProfile = useAuth();
+
+  const insertNewReplyComment = (reply: CommentResponse) => {
+    if (!comments) return;
+    let updatedComments = [...comments];
+    const cheifCommentIndex = updatedComments.findIndex(
+      ({ id }) => id === reply.repliedTo
+    );
+
+    const { replies } = updatedComments[cheifCommentIndex];
+
+    if (replies) {
+      updatedComments[cheifCommentIndex].replies = [...replies, reply];
+    } else {
+      updatedComments[cheifCommentIndex].replies = [reply];
+    }
+
+    setComments([...updatedComments]);
+  };
+
+  const updateEditedComment = (newComment: CommentResponse) => {
+    if (!comments) return;
+
+    let updatedComments = [...comments];
+
+    if (newComment.chiefComment) {
+      const index = updatedComments.findIndex(({ id }) => id === newComment.id);
+      updatedComments[index].content = newComment.content;
+    } else {
+      const cheifCommentIndex = updatedComments.findIndex(
+        ({ id }) => id === newComment.repliedTo
+      );
+
+      let newReplies: any = updatedComments[cheifCommentIndex].replies;
+      newReplies?.map((comment: CommentResponse) => {
+        if (comment.id === newComment.id) {
+          comment.content = newComment.content;
+        }
+      });
+
+      updatedComments[cheifCommentIndex].replies = newReplies;
+    }
+
+    setComments([...updatedComments]);
+  };
+
+  const updateDeletedComments = (deletedComment: CommentResponse) => {
+    if (!comments) return;
+    let newComments = [...comments];
+
+    if (deletedComment.chiefComment) {
+      newComments = newComments.filter(({ id }) => id !== deletedComment.id);
+    } else {
+      const cheifCommentIndex = newComments.findIndex(
+        ({ id }) => id === deletedComment.repliedTo
+      );
+      const newReplies = newComments[cheifCommentIndex].replies?.filter(
+        ({ id }) => id !== deletedComment.id
+      );
+      newComments[cheifCommentIndex].replies = newReplies;
+    }
+
+    setComments([...newComments]);
+  };
+
+  const updateLikedComments = (likedComments: CommentResponse) => {
+    if (!comments) return;
+    let newComments = [...comments];
+
+    if (likedComments.chiefComment) {
+      newComments = newComments.map((comment) => {
+        if (comment.id === likedComments.id) return likedComments;
+        return comment;
+      });
+    } else {
+      const cheifCommentIndex = newComments.findIndex(
+        ({ id }) => id === likedComments.repliedTo
+      );
+      const newReplies = newComments[cheifCommentIndex].replies?.map(
+        (reply) => {
+          if (reply.id === likedComments.id) return likedComments;
+          return reply;
+        }
+      );
+      newComments[cheifCommentIndex].replies = newReplies;
+    }
+
+    setComments([...newComments]);
+  };
 
   const handleNewCommentSubmit = async (content: string) => {
     const newComment = await axios
@@ -21,6 +114,60 @@ const Comments: FC<Props> = ({ belongsTo }): JSX.Element => {
       .catch((err) => console.log(err));
     if (newComment && comments) setComments([...comments, newComment]);
     else setComments([newComment]);
+  };
+
+  const handleReplySubmit = async (replyComment: {
+    content: string;
+    repliedTo: string;
+  }) => {
+    axios
+      .post("api/comment/add-reply", replyComment)
+      .then(({ data }) => {
+        insertNewReplyComment(data.comment);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const handleUpdateSubmit = async (content: string, id: string) => {
+    axios
+      .patch(`api/comment?commentId=${id}`, { content })
+      .then(({ data }) => {
+        updateEditedComment(data.comment);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const handleOnDeleteClick = (comment: CommentResponse) => {
+    setCommentToDelete(comment);
+    setShowConfirmModal(true);
+  };
+
+  const handleOnDeleteCancel = () => {
+    setCommentToDelete(null);
+    setShowConfirmModal(false);
+  };
+
+  const handleOnDeleteConfirm = () => {
+    if (!commentTodelete) return;
+    axios
+      .delete(`/api/comment?commentId=${commentTodelete.id}`)
+      .then(({ data }) => {
+        if (data.removed) {
+          updateDeletedComments(commentTodelete);
+        }
+      })
+      .catch((err) => console.log(err))
+      .finally(() => {
+        setCommentToDelete(null);
+        setShowConfirmModal(false);
+      });
+  };
+
+  const handleOnLikeClick = (comment: CommentResponse) => {
+    axios
+      .post("/api/comment/update-like", { commentId: comment.id })
+      .then(({ data }) => updateLikedComments(data.comment))
+      .catch((err) => console.log(err));
   };
 
   useEffect(() => {
@@ -45,17 +192,56 @@ const Comments: FC<Props> = ({ belongsTo }): JSX.Element => {
         </div>
       )}
 
-      {comments?.map(({ id, owner, createdAt, content }) => {
+      {comments?.map((comment) => {
+        const { replies } = comment;
         return (
-          <div key={id}>
+          <div key={comment.id}>
             <CommentCard
-              profile={owner as CommentOwnersProfile}
-              date={createdAt}
-              content={content}
+              comment={comment}
+              showControlls={userProfile?.id === comment.owner.id}
+              onReplySubmit={(content) => {
+                handleReplySubmit({ content, repliedTo: comment.id });
+              }}
+              onUpdateSubmit={(content) => {
+                handleUpdateSubmit(content, comment.id);
+              }}
+              onDeleteClick={() => handleOnDeleteClick(comment)}
+              onLikeClick={() => handleOnLikeClick(comment)}
             />
+
+            {replies?.length ? (
+              <div className="w-[93%] ml-auto">
+                <h1 className="text-secondary-dark mb-3">Replies</h1>
+                {replies?.map((reply) => {
+                  return (
+                    <CommentCard
+                      key={reply.id}
+                      comment={reply}
+                      showControlls={userProfile?.id === comment.owner.id}
+                      onReplySubmit={(content) => {
+                        handleReplySubmit({ content, repliedTo: comment.id });
+                      }}
+                      onUpdateSubmit={(content) => {
+                        handleUpdateSubmit(content, reply.id);
+                      }}
+                      onDeleteClick={() => handleOnDeleteClick(reply)}
+                      onLikeClick={() => handleOnLikeClick(reply)}
+                    />
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
         );
       })}
+
+      <ConfirmModal
+        visible={showConfirmModal}
+        title="Are you sure?"
+        subTitle="This action will remove this comment and replies if this is cheif comments!"
+        onCancel={handleOnDeleteCancel}
+        onConfirm={handleOnDeleteConfirm}
+      />
     </div>
   );
 };

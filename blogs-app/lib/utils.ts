@@ -6,7 +6,6 @@ import { CommentResponse, PostDetail, UserProfile } from "@/utils/types";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { IComment } from "@/models/Comment";
-import { ObjectId } from "mongoose";
 
 interface FormidablePromise<T> {
   files: formidable.Files;

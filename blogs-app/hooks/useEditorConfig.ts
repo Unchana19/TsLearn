@@ -53,7 +53,7 @@ const useEditorConfig = (options?: Options) => {
       },
       attributes: {
         class:
-          "prose prose-lg focus:outline-none dark:prose-invert max-w-full mx-auto h-full",
+          "prose prose-lg focus:outline-none dark:prose-invert max-w-full mx-auto h-full text-wrap resize-none",
       },
     },
   });

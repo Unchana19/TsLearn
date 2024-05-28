@@ -37,7 +37,7 @@ const readComment: NextApiHandler = async (req: NextApiRequest, res: NextApiResp
         path: "owner",
         select: "name avatar",
       }
-    }).select("createdAt likes content repliedTo");
+    }).select("createdAt likes content repliedTo chiefComment");
 
   if (!comments) return res.json(comments);
   const formattedComment: CommentResponse[] = comments.map(comment => ({
@@ -116,13 +116,14 @@ const updateComment: NextApiHandler = async (req: NextApiRequest, res: NextApiRe
   const comment = await Comment.findOne({
     _id: commentId,
     owner: user.id,
-  });
+  }).populate("owner");
 
   if (!comment) return res.status(404).json({ error: "Comment not found!" });
 
   comment.content = req.body.content;
   await comment.save();
-  res.json(comment);
+
+  res.json({ comment: formatComment(comment, user) });
 }
 
 export default handler;
