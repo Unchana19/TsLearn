@@ -40,3 +40,26 @@ export interface CommentResponse {
     avatar?: string;
   };
 }
+
+export interface LatestComment {
+  id: string;
+  owner: {
+    if: string;
+    avatar?: string
+  }
+
+  content: string
+  belongsTo: {
+    id: string;
+    title: string;
+    slug: ""
+  }
+}
+
+export interface LatestUserProfile {
+  id: string;
+  name: string;
+  avatar?: string;
+  provider: string;
+  email: string;
+}

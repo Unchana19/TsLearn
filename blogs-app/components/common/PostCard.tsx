@@ -1,3 +1,4 @@
+import { trimText } from "@/utils/helper";
 import { PostDetail } from "@/utils/types";
 import dateformat from "dateformat";
 import Image from "next/image";
@@ -10,11 +11,6 @@ interface Props {
   controls?: boolean;
   onDeleteClick?(): void;
 }
-
-const trimText = (text: string, trimBy: number) => {
-  if (text.length <= trimBy) return text;
-  return text.substring(0, trimBy).trim() + "...";
-};
 
 const PostCard: FC<Props> = ({
   controls = false,

@@ -9,6 +9,7 @@ interface Props {
   busy?: boolean;
   onClose?(): void;
   initialState?: string;
+  visible?: boolean;
 }
 
 const CommentForm: FC<Props> = ({
@@ -17,7 +18,8 @@ const CommentForm: FC<Props> = ({
   onSubmit,
   onClose,
   initialState,
-}): JSX.Element => {
+  visible = true,
+}): JSX.Element | null => {
   const { editor } = useEditorConfig({ placeholder: "Add your comment..." });
 
   const handleSubmit = () => {
@@ -34,6 +36,8 @@ const CommentForm: FC<Props> = ({
       editor?.chain().focus().setContent(initialState).run();
     }
   }, [editor, initialState]);
+
+  if (!visible) return null;
 
   return (
     <div>
