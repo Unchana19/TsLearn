@@ -19,6 +19,7 @@ export interface CommentOwnersProfile {
 interface Props {
   comment: CommentResponse;
   showControlls?: boolean;
+  busy?: boolean;
   onUpdateSubmit?(content: string): void;
   onReplySubmit?(content: string): void;
   onDeleteClick?(): void;
@@ -28,6 +29,7 @@ interface Props {
 const CommentCard: FC<Props> = ({
   comment,
   showControlls = false,
+  busy,
   onUpdateSubmit,
   onReplySubmit,
   onDeleteClick,
@@ -86,6 +88,7 @@ const CommentCard: FC<Props> = ({
             liked={likedByOwner}
             label={`${likes} likes`}
             onClick={onLikeClick}
+            busy={busy}
           />
           <Button onClick={handleOnReplyClick}>
             <BsFillReplyAllFill />

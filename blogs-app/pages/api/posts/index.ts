@@ -1,6 +1,6 @@
 import cloudinary from "@/lib/cloudinary";
 import dbConnect from "@/lib/dbConnect";
-import { formatPosts, isAdmin, readFile, readPostsFromDB } from "@/lib/utils";
+import { formatPosts, isAdmin, isAuth, readFile, readPostsFromDB } from "@/lib/utils";
 import { postValidationSchema, validateSchema } from "@/lib/validator";
 import Post from "@/models/Post";
 import { Incomingpost } from "@/utils/types";
@@ -23,7 +23,8 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
 
 const createNewPost: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   const admin = await isAdmin(req, res);
-  if (!admin) return res.status(401).json({ error: "unauthorized request!" });
+  const user = await isAuth(req, res);
+  if (!admin || !user) return res.status(401).json({ error: "unauthorized request!" });
 
   const { files, body } = await readFile<Incomingpost>(req)
 
@@ -50,6 +51,7 @@ const createNewPost: NextApiHandler = async (req: NextApiRequest, res: NextApiRe
     slug,
     meta,
     tags,
+    author: user.id,
   });
 
   const thumbnail = files.thumbnail as unknown as formidable.File;
