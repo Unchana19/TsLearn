@@ -19,12 +19,11 @@ import axios from "axios";
 import User from "@/models/User";
 import AuthorInfo from "@/components/common/AuthorInfo";
 import Share from "@/components/common/Share";
-import { Schema } from "mongoose";
 import Link from "next/link";
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
-const host = "http://localhost:3000";
+const host = "https://ts-learn-c60ulpldv-unchana19s-projects.vercel.app/";
 
 const SinglePost: NextPage<Props> = ({ post }) => {
   const [liking, setLiking] = useState(false);
@@ -127,6 +126,7 @@ const SinglePost: NextPage<Props> = ({ post }) => {
             {relatedPosts.map((p) => {
               return (
                 <Link
+                  key={p.slug}
                   className="font-semibold text-primary-dark dark:text-primary"
                   href={p.slug}
                 >
