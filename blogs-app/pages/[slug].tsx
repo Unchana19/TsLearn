@@ -18,13 +18,29 @@ import { signIn } from "next-auth/react";
 import axios from "axios";
 import User from "@/models/User";
 import AuthorInfo from "@/components/common/AuthorInfo";
+import Share from "@/components/common/Share";
+import { Schema } from "mongoose";
+import Link from "next/link";
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
+const host = "http://localhost:3000";
+
 const SinglePost: NextPage<Props> = ({ post }) => {
+  const [liking, setLiking] = useState(false);
   const [likes, setLikes] = useState({ likedByOwner: false, count: 0 });
-  const { id, title, content, tags, meta, author, slug, thumbnail, createdAt } =
-    post;
+  const {
+    id,
+    title,
+    content,
+    tags,
+    meta,
+    author,
+    slug,
+    thumbnail,
+    createdAt,
+    relatedPosts,
+  } = post;
 
   const user = useAuth();
 
@@ -49,6 +65,7 @@ const SinglePost: NextPage<Props> = ({ post }) => {
   }, [likes]);
 
   const handleOnLikeClick = async () => {
+    setLiking(true);
     try {
       if (!user) return await signIn("github");
       const { data } = await axios.post(`/api/posts/update-like?postId=${id}`);
@@ -57,6 +74,7 @@ const SinglePost: NextPage<Props> = ({ post }) => {
     } catch (error) {
       console.log(error);
     }
+    setLiking(false);
   };
 
   return (
@@ -79,6 +97,10 @@ const SinglePost: NextPage<Props> = ({ post }) => {
           <span>{dateFormat(createdAt, "d-mmm-yyyy")}</span>
         </div>
 
+        <div className="py-5 transition dark:bg-primary-dark bg-primary sticky top-0 z-50">
+          <Share url={host + "/" + slug} />
+        </div>
+
         <div className="prose prose-lg dark:prose-invert max-w-full mx-auto">
           {parse(content)}
         </div>
@@ -87,12 +109,32 @@ const SinglePost: NextPage<Props> = ({ post }) => {
           <LikeHeart
             liked={likes.likedByOwner}
             label={getLikeLabel()}
-            onClick={handleOnLikeClick}
+            onClick={!liking ? handleOnLikeClick : undefined}
+            busy={liking}
           />
         </div>
 
         <div className="pt-10">
           <AuthorInfo profile={JSON.parse(author)} />
+        </div>
+
+        <div className="pt-5">
+          <h3 className="text-xl font-semibold bg-secondary-dark text-primary p-2 mb-4">
+            Related Posts:
+          </h3>
+
+          <div className="flex flex-col space-y-4">
+            {relatedPosts.map((p) => {
+              return (
+                <Link
+                  className="font-semibold text-primary-dark dark:text-primary"
+                  href={p.slug}
+                >
+                  {p.title}
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
         {/* comment form */}
@@ -132,6 +174,11 @@ interface StaticPropsResponse {
     thumbnail: string;
     createdAt: string;
     author: string;
+    relatedPosts: {
+      id: string;
+      title: string;
+      slug: string;
+    }[];
   };
 }
 
@@ -144,6 +191,23 @@ export const getStaticProps: GetStaticProps<
     const post = await Post.findOne({ slug: params?.slug }).populate("author");
 
     if (!post) return { notFound: true };
+
+    //fetching related posts according to tags
+    const posts = await Post.find({
+      tags: { $in: [...post.tags] },
+      _id: { $ne: post._id },
+    })
+      .sort({ createdAt: "desc" })
+      .limit(5)
+      .select("slug title");
+
+    const relatedPosts = posts.map((p) => {
+      return {
+        id: p._id.toString(),
+        title: p.title,
+        slug: p.slug,
+      };
+    });
 
     const {
       _id,
@@ -182,6 +246,7 @@ export const getStaticProps: GetStaticProps<
           thumbnail: thumbnail?.url || "",
           createdAt: createdAt.toString(),
           author: JSON.stringify(postAuthor),
+          relatedPosts,
         },
       },
       revalidate: 60,
