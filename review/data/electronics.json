@@ -1,0 +1,18 @@
+{
+  "computer": [
+    {
+      "title": "Dell",
+      "thumbnail": "https://images.unsplash.com/photo-1593642532744-d377ab507dc8?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZGVsbHxlbnwwfHwwfHx8MA%3D%3D",
+      "slug": "dell",
+      "rating": 4.5
+    }
+  ],
+  "mobile": [
+    {
+      "title": "Iphone",
+      "thumbnail": "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aXBob25lfGVufDB8fDB8fHww",
+      "slug": "iphone",
+      "rating": 4.5
+    }
+  ]
+}

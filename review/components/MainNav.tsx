@@ -16,7 +16,7 @@ const MainNav: FC<Props> = (props): JSX.Element => {
       <div className="space-y-5">
         {navItems.map((item) => {
           return (
-            <Link className="block" href={item.slug}>
+            <Link className="block" key={item.slug} href={item.slug}>
               {item.title}
             </Link>
           );
