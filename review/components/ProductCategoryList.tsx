@@ -29,6 +29,11 @@ const ProductCategoryList: FC<Props> = ({
             <div className="mt-3">
               <h1 className="text-lg font-semibold">{item.title}</h1>
               <p>{item.subtitle}</p>
+              {item.rating ? (
+                <p className="p-2 bg-yellow-400 rounded-full font-semibold inline-block">
+                  {item.rating}
+                </p>
+              ) : null}
             </div>
           </Link>
         );

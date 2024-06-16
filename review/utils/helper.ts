@@ -13,7 +13,7 @@ export const loadCategories = (category: string) => {
   const jsonRes = fs.readFileSync(path.join(process.cwd(), 'data/categories.json'), 'utf-8');
   const categories = JSON.parse(jsonRes);
 
-  return { product_category: categories[category] };
+  return { product_category: categories[category] as ProductCategory };
 }
 
 export const loadProductList = (category: string) => {
@@ -21,4 +21,10 @@ export const loadProductList = (category: string) => {
   const list = JSON.parse(jsonRes);
 
   return { products: list[category] as ProductCategory };
+}
+
+export const loadAllProduct = () => {
+  const jsonRes = fs.readFileSync(path.join(process.cwd(), 'data/electronics.json'), 'utf-8');
+
+  return JSON.parse(jsonRes);
 }
